@@ -1,10 +1,574 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Factorization [TBD]</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>roboFactors</title>
+  <!-- 字体与图标库 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0c0f;
+      font-family: 'Inter', sans-serif;
+      color: #e3e9f0;
+      line-height: 1.5;
+      background-image: radial-gradient(circle at 25% 0%, rgba(45, 85, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 75% 100%, rgba(170, 90, 255, 0.03) 0%, transparent 50%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(18, 22, 28, 0.6);
+      backdrop-filter: blur(2px);
+      border-radius: 2.5rem;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(75, 130, 245, 0.15) inset;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    /* 标题区 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .title-section h1 {
+      font-size: 2.0rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff, #b0c8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.8;
+      margin-bottom: 0.9rem;
+    }
+
+    .title-section .subhead {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      max-width: 600px;
+      border-left: 3px solid #3b82f6;
+      padding-left: 1.2rem;
+      margin-top: 0.3rem;
+    }
+
+    .github-link {
+      background: #1e2532;
+      padding: 0.7rem 1.4rem;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: #cdd9f4;
+      border: 1px solid #2e3a4a;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .github-link:hover {
+      background: #2a3442;
+      border-color: #3b82f6;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* 网格区域 (核心因子组合) */
+    .grid-section {
+      margin-bottom: 4rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 1.8rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, #f0f4ff, #b9cdff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .section-header h2 i {
+      font-size: 1.8rem;
+      color: #3b82f6;
+      -webkit-text-fill-color: initial;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      background: #151e26;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid #293544;
+      font-size: 0.85rem;
+      color: #adb9cc;
+    }
+
+    .legend-gradient {
+      width: 100px;
+      height: 8px;
+      background: linear-gradient(90deg, #2b6ef0, #a96eff);
+      border-radius: 20px;
+    }
+
+    .factor-grid-container {
+      position: relative;
+      margin: 2rem 0 1rem;
+      background: #0f151d;
+      border-radius: 32px;
+      padding: 2rem 1.5rem 1.8rem 2.2rem;
+      border: 1px solid #26313f;
+      box-shadow: 0 15px 30px -15px #00000080;
+    }
+
+    /* 轴标签 */
+    .axis-x {
+      text-align: center;
+      color: #9bb1cc;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 1.2rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .axis-x i {
+      color: #3b82f6;
+      font-size: 1rem;
+    }
+
+    .axis-y {
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      transform-origin: left center;
+      color: #9bb1cc;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .axis-y i {
+      color: #a96eff;
+      transform: rotate(90deg);
+    }
+
+    /* 网格本身 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px;
+      margin-left: 15px;  /* 给左侧留空间 */
+    }
+
+    .grid-cell {
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      background-color: #1f2b38;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      cursor: default;
+      position: relative;
+    }
+
+    .grid-cell:hover {
+      transform: scale(1.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 18px rgba(0, 40, 255, 0.3);
+      z-index: 5;
+    }
+
+    .grid-cell.optimal {
+      box-shadow: 0 0 0 2px #fbbf24, 0 8px 18px rgba(250, 204, 21, 0.3);
+      border-color: #fbbf24;
+    }
+
+    /* 维度脚注 */
+    .dimension-tags {
+      display: flex;
+      justify-content: space-between;
+      color: #778aa3;
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      padding: 0 1rem;
+    }
+
+    .dimension-tags span strong {
+      color: #d2e0ff;
+      font-weight: 600;
+    }
+
+    /* 视频卡片区域 */
+    .videos-section {
+      margin-top: 3.5rem;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.8rem;
+      margin-top: 2rem;
+    }
+
+    .video-card {
+      background: #131c26;
+      border-radius: 28px;
+      padding: 1.4rem;
+      border: 1px solid #263543;
+      transition: all 0.25s;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 15px 25px -15px #000000;
+    }
+
+    .video-card:hover {
+      transform: translateY(-6px);
+      border-color: #3b82f6;
+      box-shadow: 0 25px 30px -12px #1e3a8a;
+    }
+
+    .video-thumbnail {
+      background: linear-gradient(145deg, #1f2d3a, #0e1a24);
+      border-radius: 20px;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+      border: 1px solid #364654;
+      color: #62748b;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-thumbnail i {
+      font-size: 3.2rem;
+      color: #3b82f6;
+      opacity: 0.7;
+      z-index: 2;
+      filter: drop-shadow(0 5px 10px #00000060);
+    }
+
+    .video-thumbnail::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 30%, #2d498580, transparent 70%);
+    }
+
+    .video-card h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .video-card p {
+      color: #94a6c0;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #1f3243;
+      padding: 0.25rem 0.9rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a6c5ff;
+      letter-spacing: 0.3px;
+      border: 1px solid #3b5f85;
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding-top: 1.8rem;
+      border-top: 1px solid #25313f;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      color: #7388a3;
+      font-size: 0.9rem;
+    }
+
+    .footer-links a {
+      color: #a6c1e0;
+      margin-left: 1.8rem;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #3b82f6;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 700px) {
+      .container {
+        padding: 1.5rem;
+      }
+      .title-section h1 {
+        font-size: 2rem;
+      }
+      .axis-y {
+        left: -18px;
+        font-size: 0.8rem;
+      }
+      .grid {
+        gap: 4px;
+      }
+      .grid-cell:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .legend {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Factors!</h1>
-    <p>OAE</p>
+<div class="container">
+  <!-- 头部区域 -->
+  <div class="header">
+    <div class="title-section">
+      <h1>Efficient Learning from High-Dimensional Robotics Data: Structured Factorization and Compositional Generalization <span style="font-weight: 100; color: #5d799b; -webkit-text-fill-color: #b0c8ff;"></span></h1>
+      <div class="subhead">
+        Author xxx
+      </div>
+    </div>
+    <a href="#" class="github-link" target="_self">
+      <!-- <i class="fas fa-book"></i> factor-rl/lab -->
+      <i class="fas fa-file-alt"></i> arXiv
+    </a>
+    <!-- <a href="#" class="github-link" target="_self" display="border-left">
+        <i class="fas fa-envelope"></i> contact
+    </a> -->
+  </div>
+
+
+  <!-- <section class="grid-section">
+    <div class="section-header">
+      <h2><i class="fas fa-th-large"></i> 因子组合空间 · 8x8 Grid</h2>
+      <div class="legend">
+        <span>低覆盖</span>
+        <div class="legend-gradient"></div>
+        <span>高泛化</span>
+      </div>
+    </div>
+
+    <div class="factor-grid-container">
+      <div class="axis-y"><i class="fas fa-arrow-up"></i> 动作因子 (Action) </div>
+      <div id="factorGrid" class="grid">
+      </div>
+      <div class="axis-x"><i class="fas fa-arrow-right"></i> 物体因子 (Object)  <span style="opacity:0.6; margin-left:0.8rem;">环境因子隐含于颜色深度</span></div>
+    </div>
+    <div class="dimension-tags">
+      <span><strong>O</strong> 物体: 杯子, 书籍, 衣物, 工具, 铰链物…</span>
+      <span><strong>A</strong> 动作: Pick, Place, Open, Close, Push…</span>
+      <span><strong>E</strong> 环境: 桌面, 抽屉, 架子, 动态背景…</span>
+    </div>
+    <p style="text-align: right; font-size:0.85rem; color:#4f6582; margin-top:0.5rem;">
+      <i class="fas fa-search" style="margin-right:0.3rem;"></i> 高亮格子: 当前搜索到的最优组合 (因子泛化峰值)
+    </p>
+  </section> -->
+
+  <!-- 视频预留区域 (demo & 实验) -->
+  <section class="videos-section">
+    <div class="section-header">
+      <h2><i class="fas fa-play-circle"></i> Experiment</h2>
+      <span class="tag" style="background: #2e3f54;"><i class="far fa-clock"></i> tbd</span>
+    </div>
+
+    <div class="video-grid">
+<!-- 
+      <div class="video-card">
+        <div class="video-thumbnail">
+          <i class="fas fa-play"></i>
+        </div>
+        <h3>Demo: [TBD]</h3>
+        <p>rollout based on factors</p>
+        <span class="tag"><i class="far fa-file-video"></i> 演示 · 即将发布</span>
+      </div>
+
+
+      <div class="video-card">
+        <div class="video-thumbnail">
+          <i class="fas fa-film"></i>
+        </div>
+        <h3>Trial: Open/Close</h3>
+        <p>Object Factor </p>
+        <span class="tag"><i class="fas fa-flask"></i> 因子分析中</span>
+      </div>
+
+
+      <div class="video-card">
+        <div class="video-thumbnail">
+          <i class="fas fa-cubes"></i>
+        </div>
+        <h3>pp oae</h3>
+        <p>...</p>
+        <span class="tag"><i class="fas fa-chart-line"></i>tbd/span>
+      </div> -->
+
+
+      <div class="video-card">
+        <div class="video-thumbnail">
+          <i class="fas fa-cube"></i>
+        </div>
+        <h3>object</h3>
+        <p>
+            <div class="video-card">
+                <h3>🎬 pick place video </h3>
+                <h3>🎬 open close video </h3>
+              </div>
+        </p>
+        <span class="tag"><i class="far fa-hourglass"></i> tbd</span>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumbnail">
+          <i class="fas fa-running"></i>
+        </div>
+        <h3>object-action</h3>
+        <p>
+            <div class="video-card">
+                <h3>🎬 pick place video </h3>
+                <h3>🎬 open close video </h3>
+              </div>
+        </p>
+        <span class="tag"><i class="far fa-hourglass"></i> tbd</span>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumbnail">
+          <i class="fas fa-globe"></i>
+        </div>
+        <h3>object-action-environment</h3>
+        <p>
+            <div class="video-card">
+                <h3>🎬 pick place video </h3>
+                <h3>🎬 open close video </h3>
+              </div>  
+        </p>
+        <span class="tag"><i class="far fa-hourglass"></i> tbd</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <div class="footer">
+    <div>© 2026 xxx</div>
+    <div class="footer-links">
+      <!-- <a href="#"><i class="fab fa-twitter"></i></a> -->
+      <!-- <a href="#"><i class="fab fa-github"></i></a> -->
+      <!-- <a href="#"><i class="fas fa-envelope"></i></a> -->
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const gridContainer = document.getElementById('factorGrid');
+    const rows = 8, cols = 8;
+
+    gridContainer.innerHTML = '';
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        const hue = 220 + ( (r / 7) * 40 ) + ( (c / 7) * 30 ); 
+        const sat = 70 + (c * 1.5); 
+        const light = 55 + (r * 2); 
+        cell.style.backgroundColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+        cell.style.opacity = 0.85; 
+        cell.style.transition = 'all 0.15s ease';
+        cell.title = `物体因子 O${c+1} | 动作因子 A${r+1}\n环境因子组合深度: ${Math.floor(hue-200)}%`;
+
+        if (Math.random() < 0.14) {
+          cell.classList.add('optimal');
+        }
+
+        gridContainer.appendChild(cell);
+      }
+    }
+    const cells = document.querySelectorAll('.grid-cell');
+    if (cells.length) {
+      const centerIndex = 27 + Math.floor(Math.random() * 8);
+      if (cells[centerIndex]) {
+        cells[centerIndex].classList.add('optimal');
+      }
+      cells[5]?.classList.add('optimal');
+      cells[58]?.classList.add('optimal');
+    }
+  })();
+</script>
+
+<script>
+  (function refineOptimal() {
+    const cells = document.querySelectorAll('.grid-cell');
+    let optimalCells = document.querySelectorAll('.grid-cell.optimal');
+    while (optimalCells.length > 14) {
+      const randomIndex = Math.floor(Math.random() * optimalCells.length);
+      optimalCells[randomIndex]?.classList.remove('optimal');
+      optimalCells = document.querySelectorAll('.grid-cell.optimal');
+    }
+    if (optimalCells.length < 6) {
+      for (let i = 0; i < 8; i++) {
+        const idx = Math.floor(Math.random() * cells.length);
+        cells[idx]?.classList.add('optimal');
+      }
+    }
+  })();
+</script>
 </body>
 </html>
